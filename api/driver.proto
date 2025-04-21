@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package rpcdriver;
-option go_package = "pkg/driver/rpc";
+option go_package = "api/rpcdriver";
 
 service Driver {
   rpc Init (InitReq) returns (Ack)       {}
