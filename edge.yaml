@@ -1,0 +1,18 @@
+drivers:
+  - id: bess_mb_1
+    type: modbus            # 将映射到 modbus.so
+    param: |
+      {"mode":"rtu","serialPort":"/dev/ttyUSB0","baudRate":9600,"slaveId":1,"timeoutMs":1000}
+    poll:
+      interval: 200ms
+      points:
+        - deviceID: bess1
+          tag: Voltage
+          address: 30001
+          type: float32
+          scale: 0.1
+        - deviceID: bess1
+          tag: Current
+          address: 30002
+          type: float32
+          scale: 0.01

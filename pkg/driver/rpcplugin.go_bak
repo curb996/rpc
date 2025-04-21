@@ -1,0 +1,46 @@
+// pkg/driver/rpcplugin.go
+package driver
+
+import (
+	"context"
+	"encoding/json"
+	pb "srpc/api/rpcdriver"
+
+	hplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc"
+)
+
+/* ---------- HashiCorp glue ---------- */
+
+var handshake = hplugin.HandshakeConfig{
+	ProtocolVersion:  1,
+	MagicCookieKey:   "DRIVER_PLUGIN",
+	MagicCookieValue: "bess",
+}
+
+// 服务端 (插件进程)
+type DriverPlugin struct{ hplugin.Plugin }
+
+func (DriverPlugin) GRPCServer(b *hplugin.GRPCBroker, s *grpc.Server) error {
+	pb.RegisterDriverServer(s, impl) // impl 实现了 pb.DriverServer
+	return nil
+}
+func (DriverPlugin) GRPCClient(_ context.Context, b *hplugin.GRPCBroker, cc *grpc.ClientConn) (interface{}, error) {
+	return &grpcClient{client: pb.NewDriverClient(cc)}, nil
+}
+
+/* ---------- 客户端包装 ---------- */
+
+// Client 是 registry 内部用的最小接口
+type Client interface {
+	Init(json.RawMessage) error
+	Connect(context.Context) error
+	Close() error
+	Read(context.Context, []Point) ([]Value, error)
+	Write(context.Context, Value) error
+	Health() error
+}
+
+type grpcClient struct{ client pb.DriverClient }
+
+/* translate proto <-> struct, 代码略 */

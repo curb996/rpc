@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package rpcdriver;
+option go_package = "pkg/driver/rpc";
+
+service Driver {
+  rpc Init (InitReq) returns (Ack)       {}
+  rpc Connect (Void) returns (Ack)       {}
+  rpc Close (Void) returns (Ack)         {}
+  rpc Health (Void) returns (Ack)        {}
+  rpc Read (ReadReq) returns (ReadResp)  {}
+  rpc Write (WriteReq) returns (Ack)     {}
+}
+
+message InitReq  { bytes param = 1; }
+message ReadReq  { repeated bytes points = 1; }
+message ReadResp { repeated bytes values = 1; }
+message WriteReq { bytes value = 1; }
+message Ack      {}
+message Void     {}

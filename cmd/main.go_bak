@@ -1,0 +1,24 @@
+package main
+
+import (
+	hplugin "github.com/hashicorp/go-plugin"
+	pb "srpc/api/rpcdriver"
+	"srpc/pkg/driver"
+)
+
+type server struct {
+	pb.UnimplementedDriverServer
+	drv driver.Driver
+}
+
+/* 实现 pb.DriverServer => 调 modbus.NewDriver 等 */
+
+func main() {
+	hplugin.Serve(&hplugin.ServeConfig{
+		HandshakeConfig: driver.Handshake,
+		Plugins: map[string]hplugin.Plugin{
+			"driver": &driver.DriverPlugin{},
+		},
+		GRPCServer: hplugin.DefaultGRPCServer,
+	})
+}
